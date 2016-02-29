@@ -63,6 +63,24 @@ defmodule ExMatrix do
     end)
   end
 
+  @doc """
+  Perform a scalar multiplication on the matrix
+  """
+  @spec multiply_scalar([[number]], number) :: [[number]]
+  def multiply_scalar(matrix, scalar) when is_list(matrix) and is_number(scalar) do
+    if Enum.any?(matrix, fn x -> not is_list(x) end) do
+      raise "Invalid matrix format"
+    end
+    matrix
+    |> Enum.map(fn row -> 
+      Enum.map(row, fn value -> 
+        # We round it for 10 decimals because when float is multiplied 
+        # with another float, silly results can ensue
+        Float.round(value * scalar * 1.0, 10) 
+      end) 
+    end)
+  end
+  def multiply_scalar(_, _), do: raise "Invalid format."
 
   @doc """
   Perform a parallel multiplication of the two matrices,
