@@ -66,9 +66,18 @@ defmodule ExMatrix do
 
     new_b = transpose(matrix_b)
 
-    Enum.map(matrix_a, fn(row)->
+    result = Enum.map(matrix_a, fn(row)->
       Enum.map(new_b, &dot_product(row, &1))
     end)
+    case length(List.flatten(result)) do
+      1 ->
+        # If it's a scalar, return just the scalar
+        result 
+        |> List.flatten
+        |> Enum.at(0)
+      _ ->
+        result
+    end
   end
   def multiply(_, _), do: raise ArgumentError, "Only matrices can be set as parameters"
 
