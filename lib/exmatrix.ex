@@ -296,15 +296,41 @@ defmodule ExMatrix do
 
 
   """
-  Generates a random matrix just so we can test large matrices
+  Generates a random matrix with integers
   """
   @spec random_cells(integer, integer, integer) :: [[number]]
-  def random_cells(rows, cols, max) do
-    :random.seed()
+  def random_cells(rows, cols, max) when is_integer(max) do
+    :random.seed(:erlang.timestamp)
 
     Enum.map(:lists.seq(1, rows), fn(_)->
       :lists.seq(1, cols)
       |> Enum.map(fn(_)-> :random.uniform(max) end)
+    end)
+  end
+
+  """
+  Generates a random matrix with float numbers with default precision
+  """
+  @spec random_cells(integer, integer, float) :: [[float]]
+  def random_cells(rows, cols, max) when is_float(max) do
+    :random.seed(:erlang.timestamp)
+
+    Enum.map(:lists.seq(1, rows), fn(_)->
+      :lists.seq(1, cols)
+      |> Enum.map(fn(_)-> :random.uniform * max end)
+    end)
+  end
+
+  """
+  Generates a random matrix with float numbers with given precision
+  """
+  @spec random_cells(integer, integer, float, integer) :: [[float]]
+  def random_cells(rows, cols, max, precision) when is_float(max) do
+    :random.seed(:erlang.timestamp)
+
+    Enum.map(:lists.seq(1, rows), fn(_)->
+      :lists.seq(1, cols)
+      |> Enum.map(fn(_)-> Float.round(:random.uniform * max, precision) end)
     end)
   end
 
