@@ -55,22 +55,29 @@ defmodule ExMatrix do
   ```matrix_a``` and ```matrix_b```.
   """
   @spec multiply([[number]], [[number]]) :: [[number]]
-  def multiply(matrix_a, matrix_b) do
+  def multiply(matrix_a, matrix_b) when is_list(matrix_a) and is_list(matrix_b) do
+    if (not is_matrix(matrix_a) or not is_matrix(matrix_b)) do
+      raise ArgumentError, "Only matrices can be set as parameters"
+    end
+    with {_, col_a} = size(matrix_a),
+         {row_b, _} = size(matrix_b),
+    do:
+      if col_a != row_b, do: raise ArgumentError, "The column count of the 1st matrix has be equal to the row count of the 2nd matrix"
+
     new_b = transpose(matrix_b)
 
     Enum.map(matrix_a, fn(row)->
       Enum.map(new_b, &dot_product(row, &1))
     end)
   end
+  def multiply(_, _), do: raise ArgumentError, "Only matrices can be set as parameters"
 
   @doc """
   Perform a scalar multiplication on the matrix
   """
   @spec multiply_scalar([[number]], number) :: [[number]]
   def multiply_scalar(matrix, scalar) when is_list(matrix) and is_number(scalar) do
-    if Enum.any?(matrix, fn x -> not is_list(x) end) do
-      raise "Invalid matrix format"
-    end
+    if not is_matrix(matrix), do: raise ArgumentError, "Only matrices should be passed as a first parameter"
     matrix
     |> Enum.map(fn row -> 
       Enum.map(row, fn value -> 
@@ -292,4 +299,11 @@ defmodule ExMatrix do
     end)
   end
 
+  defp is_matrix(matrix) do
+    with list? = is_list(matrix),
+         {_, col_size} = size(matrix),
+         rows_are_ok = Enum.all?(matrix, fn x -> is_list(x) and length(x) == col_size end),
+    do:
+      list? and rows_are_ok
+  end
 end
